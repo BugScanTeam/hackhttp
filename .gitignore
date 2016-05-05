@@ -1,0 +1,8 @@
+*.DS_Store
+*.egg-info
+*.py[cod]
+.svn
+sdist
+*.swp
+.idea/
+dist/
