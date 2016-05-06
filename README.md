@@ -86,20 +86,6 @@ $ pip install -i https://pypi.python.org/pypi hackhttp
 
 	遇到 HTTP 302 后的跳转地址，如果无跳转则为请求的地址，类型为 String
 
-* **log**
-	
-	HTTP 日志信息，类型为 dict
-	* url
-
-		本次请求的第一个 URL 地址
-
-	* request
-
-		HTTP 请求报文
-
-	* response
-
-		HTTP 响应报文
 
 ### 详细说明
 

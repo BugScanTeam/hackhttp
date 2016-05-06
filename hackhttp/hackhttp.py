@@ -278,6 +278,18 @@ class hackhttp():
             eg:
                 throw_exception=True
 
+            *********
+
+            param: data: HTTP Request Data，when param is None.
+
+            eg, application/x-www-form-urlencoded :
+
+                data="key1=val1&key2=val2"
+
+            eg, application/json:
+
+                data='{"key1": "val1", "key2": "val2"}'
+
         '''
         headers = kwargs.get('header', '') or kwargs.get('headers', {})
         method = kwargs.get('method', None)

@@ -17,8 +17,6 @@ Send HTTP GET request:
 usage:
 
 >>> import hackhttp
->>> hh = hackhttp.hackhttp
-hackhttp.hackhttp
 >>> hh = hackhttp.hackhttp()
 >>> code, head, body, redirect, log = hh.http('https://www.bugscan.net')
 >>> code
