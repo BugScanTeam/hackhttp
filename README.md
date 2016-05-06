@@ -82,9 +82,25 @@ $ pip install -i https://pypi.python.org/pypi hackhttp
 
 	HTTP 响应体，类型为 String
 
-* **redirect**
+* **redirect_url**
 
 	遇到 HTTP 302 后的跳转地址，如果无跳转则为请求的地址，类型为 String
+
+* **log**
+    
+    HTTP 日志信息，类型为 dict
+
+    * url
+
+        本次请求的第一个 URL 地址
+
+    * request
+
+        HTTP 请求报文
+
+    * response
+
+        HTTP 响应报文
 
 
 ### 详细说明
@@ -292,12 +308,15 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like
 ```
 或者将 cookie 直接加入到 HTTP Header 中，具体参考 [自定义请求头](#headers)
 
+**注意：如果在创建 hackhttp 实例时指定 `cookie_str`，那么在此实例销毁之前，通过该实例创建的 http 请求中都会携带该 cookie**
 
 #### 爬虫示例：抓取乌云所有漏洞<div id="wooyunspider"></div>
 
 测试用例 `test/` 目录下提供了一个爬虫，使用 hackhttp 爬取乌云所有公开漏洞：
 
 [Wooyun Spider](test/wooyun_spider.py)
+
+> 需要自行安装 `thread_pool` 第三方库
 
 使用：
 
