@@ -426,6 +426,7 @@ class hackhttp():
             rep.version * 0.1, rep.status,
             rep.reason) + '\r\n' + str(retheader) + '\r\n' + (body[:4096])
         if location and url != redirect and locationcount < 5:
+            method = 'HEAD' if method == 'HEAD' else 'GET'
             a, b, c, d, e = self._http(
                 redirect, method=method, proxy=proxy,
                 cookcookie=cookcookie, location=location,
