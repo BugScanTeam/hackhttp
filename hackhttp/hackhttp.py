@@ -46,6 +46,7 @@ class httpconpool():
     # 存放 cookie 的池子，key 为 host
     maxconnectpool = 20
     lock = threading.Lock()
+
     def __init__(self, maxconnectpool=20, timeout=10):
         self.maxconnectpool = maxconnectpool
         self.timeout = timeout
@@ -170,6 +171,8 @@ class hackhttp():
     def _decode_html(self, head, body):
         # 这里处理编码有问题，所以暂不处理
         # return body
+        if 'text' not in head:
+            return body
         charset = None
         r = re.search(r'charset=(\S+)', head, re.I)
         if not r:
@@ -386,6 +389,8 @@ class hackhttp():
                 # content-length err 411
                 tmpheaders[
                     'Content-Length'] = tmpheaders.get('Content-Length', 0)
+                if method == 'GET':
+                    del tmpheaders['Content-Length']
             con.request(method, path, post, tmpheaders)
             rep = con.getresponse()
             body = rep.read()
