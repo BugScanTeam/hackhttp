@@ -76,7 +76,7 @@ True
 """
 
 __title__ = 'hackhttp'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __build__ = 0x020700
 __author__ = 'BugScanTeam'
 __author_email__ = 'admin@bugscan.net'
