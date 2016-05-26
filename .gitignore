@@ -6,3 +6,4 @@ sdist
 *.swp
 .idea/
 dist/
+build/
