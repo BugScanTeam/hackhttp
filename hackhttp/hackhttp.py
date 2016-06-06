@@ -166,12 +166,7 @@ class hackhttp():
         Cookie.Morsel = MorselHook
         self.initcookie = Cookie.SimpleCookie()
         if cookie_str:
-            if not cookie_str.endswith(';'):
-                cookie_str += ";"
-            for cookiepart in cookie_str.split(";"):
-                if cookiepart.strip() != "":
-                    cookiekey, cookievalue = cookiepart.split("=", 1)
-                    self.initcookie[cookiekey.strip()] = cookievalue.strip()
+            self.initcookie.load(cookie_str)
         self.cookiepool = {}
 
     def _get_urlinfo(self, url):
@@ -385,12 +380,7 @@ class hackhttp():
                     c = self.cookiepool.get(host)
                 if 'Cookie' in tmpheaders:
                     cookie_str = tmpheaders['Cookie'].strip()
-                    if not cookie_str.endswith(';'):
-                        cookie_str += ";"
-                    for cookiepart in cookie_str.split(";"):
-                        if cookiepart.strip() != "":
-                            cookiekey, cookievalue = cookiepart.split("=", 1)
-                            c[cookiekey.strip()] = cookievalue.strip()
+                    c.load(cookie_str)
                 for k in c.keys():
                     m = c[k]
                     # check cookie path
