@@ -14,6 +14,7 @@ import Cookie
 import cookielib
 import copy
 import time
+import string
 
 
 class httpheader(mimetools.Message):
@@ -36,6 +37,27 @@ class Compatibleheader(str):
 
     def get(self, key, d=None):
         return self.dict.get(key, d)
+
+
+class MorselHook(Cookie.Morsel):
+    """
+    Support ":" in Cookie key.
+
+    >>> import inspect
+    >>> (inspect.getargspec(MorselHook.set)[3])[0]
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&'*+-.^_`|~:"
+    >>> cookie = Cookie.SimpleCookie()
+    >>> cookie.load("key:key=abc; key=val")
+    >>> print cookie
+    Set-Cookie: key=val;
+    Set-Cookie: key:key=abc;
+    """
+    def set(
+        self, key, val, coded_val,
+            LegalChars=Cookie._LegalChars + ':',
+            idmap=string._idmap, translate=string.translate):
+        return super(MorselHook, self).set(
+            key, val, coded_val, LegalChars, idmap, translate)
 
 
 class httpconpool():
@@ -141,6 +163,7 @@ class hackhttp():
             self.conpool = httpconpool(10)
         else:
             self.conpool = conpool
+        Cookie.Morsel = MorselHook
         self.initcookie = Cookie.SimpleCookie()
         if cookie_str:
             if not cookie_str.endswith(';'):
