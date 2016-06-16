@@ -389,27 +389,21 @@ class hackhttp():
                         # check cookie path
                         if path.find(m['path']) != 0:
                             continue
-                        expires = m['expires']
-                        if not expires:
-                            continue
-                        # print 'expires',expires
-                        # TODO expires time parse error when have more than one Set-Cookie.
-                        # check cookie expires time
-                        if cookielib.http2time(expires) < time.time():
-                            del c[k]
-                    cookie_str = join_cookie(
-                        cookie_str,
-                        c.output(attrs=[], header='', sep=';').strip())
-
+                        # expires = m['expires']
+                        # if not expires:
+                            # continue
+                        # # print 'expires',expires 
+                        # #TODO expires time parse error when have more than one Set-Cookie.
+                        # # check cookie expires time
+                        # if cookielib.http2time(expires) < time.time():
+                            # del c[k]
+                    cookie_str = join_cookie(cookie_str, c.output(attrs=[], header='', sep=';').strip())
                 # c = self.cookiepool.get(host,None)
                 # if c:
                     # c = self.cookiepool.get(host)
 
                 if 'Cookie' in tmpheaders:
-                    if cookie_str:
-                        cookie_str = join_cookie(
-                            cookie_str, tmpheaders['Cookie'].strip())
-
+                    cookie_str = join_cookie(cookie_str, tmpheaders['Cookie'].strip())
                 if cookie_str:
                     tmpheaders['Cookie'] = cookie_str
             if post:
