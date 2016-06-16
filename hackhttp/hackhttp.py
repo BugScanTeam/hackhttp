@@ -39,6 +39,14 @@ class Compatibleheader(str):
         return self.dict.get(key, d)
 
 
+def join_cookie(c1, c2):
+    c1, c2 = c1.strip(), c2.strip()
+    if c1:
+        if not c1.endswith(';'):
+            c1 += ';'
+    return c1 + c2
+
+
 class MorselHook(Cookie.Morsel):
     """
     Support ":" in Cookie key.
@@ -164,9 +172,7 @@ class hackhttp():
         else:
             self.conpool = conpool
         Cookie.Morsel = MorselHook
-        self.initcookie = Cookie.SimpleCookie()
-        if cookie_str:
-            self.initcookie.load(cookie_str)
+        self.initcookie = cookie_str or ''
         self.cookiepool = {}
 
     def _get_urlinfo(self, url):
@@ -362,6 +368,7 @@ class hackhttp():
                 method = "GET"
         rep = None
         urlinfo = https, host, port, path = self._get_urlinfo(url)
+        target = '%s:%s' % (host, port)
         log = {}
         con = self.conpool._get_connect(urlinfo, proxy)
         # con .set_debuglevel(2) #?
@@ -374,25 +381,35 @@ class hackhttp():
             tmpheaders['User-Agent'] = tmpheaders['User-Agent'] if tmpheaders.get('User-Agent') else 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.71 Safari/537.36'
 
             if cookcookie:
-                c = self.cookiepool.get(host, None)
-                if not c:
-                    self.cookiepool[host] = self.initcookie
-                    c = self.cookiepool.get(host)
+                cookie_str = self.initcookie
+                if target in self.cookiepool:
+                    c = self.cookiepool[target]
+                    for k in c.keys():
+                        m = c[k]
+                        # check cookie path
+                        if path.find(m['path']) != 0:
+                            continue
+                        expires = m['expires']
+                        if not expires:
+                            continue
+                        # print 'expires',expires
+                        # TODO expires time parse error when have more than one Set-Cookie.
+                        # check cookie expires time
+                        if cookielib.http2time(expires) < time.time():
+                            del c[k]
+                    cookie_str = join_cookie(
+                        cookie_str,
+                        c.output(attrs=[], header='', sep=';').strip())
+
+                # c = self.cookiepool.get(host,None)
+                # if c:
+                    # c = self.cookiepool.get(host)
+
                 if 'Cookie' in tmpheaders:
-                    cookie_str = tmpheaders['Cookie'].strip()
-                    c.load(cookie_str)
-                for k in c.keys():
-                    m = c[k]
-                    # check cookie path
-                    if path.find(m['path']) != 0:
-                        continue
-                    expires = m['expires']
-                    if not expires:
-                        continue
-                    # check cookie expires time
-                    if cookielib.http2time(expires) < time.time():
-                        del c[k]
-                cookie_str = c.output(attrs=[], header='', sep=';').strip()
+                    if cookie_str:
+                        cookie_str = join_cookie(
+                            cookie_str, tmpheaders['Cookie'].strip())
+
                 if cookie_str:
                     tmpheaders['Cookie'] = cookie_str
             if post:
@@ -422,9 +439,15 @@ class hackhttp():
             redirect = rep.msg.dict.get('location', url)
             if not redirect.startswith('http'):
                 redirect = urlparse.urljoin(url, redirect)
-            if cookcookie and "set-cookie" in rep.msg.dict:
-                c = self.cookiepool[host]
-                c.load(rep.msg.dict['set-cookie'])
+
+            if cookcookie and "set-cookie" in rep.msg:
+                if host in self.cookiepool:
+                    c = self.cookiepool[target]
+                else:
+                    c = Cookie.SimpleCookie()
+                    self.cookiepool[target] = c
+                # TODO more than one Set-Cookie will be zipped into one in rep.
+                c.load(rep.msg['set-cookie'])
         except httplib.ImproperConnectionState:
             conerr = True
             raise
