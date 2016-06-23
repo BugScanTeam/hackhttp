@@ -83,6 +83,9 @@ class httpconpool():
         self.protocol = []
         self._get_protocol()
 
+    def __del__(self):
+        self._close_all_connect()
+
     def _get_protocol(self):
         if not self.protocol:
             ps = (
@@ -156,6 +159,14 @@ class httpconpool():
         self.connected[conhash] -= 1
         self.lock.release()
 
+    def _close_all_connect(self):
+        for connqueue in self.connectpool:
+            try:
+                for x in range(connqueue.qsize()):
+                    conn = connqueue.get()
+                    conn.close()
+            except Exception as e:
+                pass
 
 class hackhttp():
 
@@ -174,6 +185,9 @@ class hackhttp():
         Cookie.Morsel = MorselHook
         self.initcookie = cookie_str or ''
         self.cookiepool = {}
+
+    def __del__(self):
+        del self.conpool
 
     def _get_urlinfo(self, url):
         p = urlparse.urlparse(url)
