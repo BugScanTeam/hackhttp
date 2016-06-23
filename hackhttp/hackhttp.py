@@ -470,14 +470,14 @@ class hackhttp():
         # Content-Type: application/x-www-form-urlencoded
         # Content-Type: multipart/form-data
         if content_type.startswith('application/x-www-form-urlencoded'):
-            while 1:
+            while True:
                 line = raw.readline()
                 if line == '':
                     rawbody = rawbody[:-2]
                     break
                 rawbody += line.rstrip() + '\r\n'
-        if content_type.startswith('multipart/form-data'):
-            while 1:
+        elif content_type.startswith('multipart/form-data'):
+            while True:
                 line = raw.readline()
                 if line == '':
                     break
@@ -494,6 +494,8 @@ class hackhttp():
                     rawbody += '\r\n'
                 else:
                     rawbody += line
+        else:
+            rawbody = raw.read()
         headers['Host'] = host
         headers['Content-Length'] = str(len(rawbody))
         return self._http(
